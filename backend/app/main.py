@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 
 from app.api.routes import api_router
 from app.models.db import Agent, Job
+from app.models.integrations import Integration
 from app.services.activity import log_event
 from app.services.database import engine, init_db
 
