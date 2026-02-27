@@ -1,0 +1,22 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8020:8000"
+    environment:
+      - DATABASE_URL=sqlite:////data/mission_control.db
+    volumes:
+      - mc_data:/data
+
+  web:
+    build: ./frontend
+    environment:
+      - NEXT_PUBLIC_API_BASE=http://localhost:8020
+      - INTERNAL_API_BASE=http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  mc_data:

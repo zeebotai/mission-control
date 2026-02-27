@@ -35,7 +35,12 @@ export type ActivityLog = {
   raw_data: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+const API_BASE =
+  typeof window === "undefined"
+    ? process.env.INTERNAL_API_BASE ||
+      process.env.NEXT_PUBLIC_API_BASE ||
+      "http://localhost:8000"
+    : process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
