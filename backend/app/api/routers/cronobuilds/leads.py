@@ -68,52 +68,53 @@ def parse_leads(req: ParseRequest, db: Session = Depends(get_session)):
     if not text:
         return {"leads": [], "skipped": []}
 
-    # Naive split: new lead starts when we see a line that contains a rating like "4.7 (38)"
-    # or a category (service) on the same line.
-    parts = re.split(r"(?=\b\d\.\d\s*\(\d+\)\b)", text)
+    # Your paste format reliably contains the delimiter "Add a label" between businesses.
+    # So: split into blocks, then parse each block's header.
+    blocks = [b.strip() for b in text.split("Add a label") if b.strip()]
+
+    header_re = re.compile(
+        r"^(?P<name>.+?)\s+(?P<rating>\d\.\d)\s*\((?P<reviews>\d+)\)\s+(?P<category>.*?\bservice\b)",
+        re.IGNORECASE,
+    )
+
     leads: list[LeadCandidate] = []
     skipped: list[dict[str, Any]] = []
 
-    for part in parts:
-        chunk = part.strip()
-        if not chunk:
+    for block in blocks:
+        # Normalize whitespace so the regex can anchor at start.
+        normalized = " ".join(block.split())
+
+        m = header_re.search(normalized)
+        if not m:
+            skipped.append({"reason": "no_header_in_block", "raw": normalized[:200]})
             continue
 
-        # Name: assume first line up to rating/category
-        first_line = chunk.splitlines()[0].strip()
-        # Business name likely precedes the rating token
-        name = first_line
-        m_rating = RATING_RE.search(first_line)
-        if m_rating:
-            name = first_line[: m_rating.start()].strip()
+        name = m.group("name").strip()
+        rating = float(m.group("rating"))
+        reviews = int(m.group("reviews"))
+        category = m.group("category").strip()
 
-        phone_m = PHONE_RE.search(chunk)
+        phone_m = PHONE_RE.search(normalized)
         phone = phone_m.group(0) if phone_m else None
 
-        rating_m = RATING_RE.search(chunk)
-        rating = float(rating_m.group(1)) if rating_m else None
+        industry = _guess_industry(normalized) or category
 
-        reviews_m = REVIEWS_RE.search(chunk)
-        reviews = int(reviews_m.group(1)) if reviews_m else None
-
-        industry = _guess_industry(chunk)
-
-        if not name and not phone:
-            skipped.append({"reason": "unparseable", "raw": chunk[:200]})
-            continue
-
-        cand = LeadCandidate(
-            business_name=name or "(unknown)",
-            phone_number=phone,
-            industry=industry,
-            rating=rating,
-            reviews=reviews,
-            website="none",
-            status="lead",
-            contact_method="Text",
-            date_contacted=None,
-            follow_up_date=(date.today() + timedelta(days=1)),
+        leads.append(
+            LeadCandidate(
+                business_name=name or "(unknown)",
+                phone_number=phone,
+                industry=industry,
+                rating=rating,
+                reviews=reviews,
+                website="none",
+                status="lead",
+                contact_method="Text",
+                date_contacted=None,
+                follow_up_date=(date.today() + timedelta(days=1)),
+            )
         )
-        leads.append(cand)
+
+    if not leads:
+        skipped.append({"reason": "no_leads_parsed", "raw": text[:200]})
 
     return {"leads": leads, "skipped": skipped}
