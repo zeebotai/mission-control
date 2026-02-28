@@ -1,0 +1,1 @@
+export default function Page(){return (<div><h1 className="text-xl font-semibold">Cronobuilds · Follow-ups</h1><p className="mt-1 text-sm text-zinc-400">Next: pull due follow-ups from Baserow via MCP.</p></div>);}
