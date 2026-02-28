@@ -35,9 +35,9 @@ export default function SettingsPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        mcp_url: mcpUrl,
-        table_url: tableUrl || null,
-        database_token: dbToken || null,
+        mcp_url: mcpUrl.trim() ? mcpUrl.trim() : null,
+        table_url: tableUrl.trim() ? tableUrl.trim() : null,
+        database_token: dbToken.trim() ? dbToken.trim() : null,
         leads_table_id: tableId ? Number(tableId) : null,
       }),
     });

@@ -15,7 +15,8 @@ router = APIRouter(prefix="/integrations", tags=["integrations"])
 
 
 class BaserowConfig(BaseModel):
-    mcp_url: HttpUrl
+    # MCP URL is optional; we mainly need the database token + table id.
+    mcp_url: HttpUrl | None = None
     table_url: HttpUrl | None = None
     # Baserow database token (scoped). Stored server-side; never returned.
     database_token: str | None = None
@@ -66,9 +67,11 @@ def set_baserow(cfg: BaserowConfig, db: Session = Depends(get_session)) -> dict[
 
     payload: dict[str, Any] = {
         **existing,
-        "mcp_url": str(cfg.mcp_url),
         "table_url": str(cfg.table_url) if cfg.table_url else None,
     }
+
+    if cfg.mcp_url is not None:
+        payload["mcp_url"] = str(cfg.mcp_url)
 
     if cfg.database_token is not None:
         payload["database_token"] = cfg.database_token
