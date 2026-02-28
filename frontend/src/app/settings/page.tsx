@@ -12,7 +12,7 @@ type BaserowStatus = {
   note?: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8020";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/api";
 
 export default function SettingsPage() {
   const [mcpUrl, setMcpUrl] = useState("");

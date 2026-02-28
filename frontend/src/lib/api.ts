@@ -35,12 +35,12 @@ export type ActivityLog = {
   raw_data: string;
 };
 
+// In the browser we default to a same-origin proxy (`/api`) so users can access
+// Mission Control from another machine without their browser trying to hit its own localhost.
 const API_BASE =
   typeof window === "undefined"
-    ? process.env.INTERNAL_API_BASE ||
-      process.env.NEXT_PUBLIC_API_BASE ||
-      "http://localhost:8000"
-    : process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+    ? process.env.INTERNAL_API_BASE || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000"
+    : process.env.NEXT_PUBLIC_API_BASE || "/api";
 
 export async function getJSON<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
