@@ -6,6 +6,8 @@ type BaserowStatus = {
   configured: boolean;
   mcp_url?: string;
   table_url?: string | null;
+  leads_table_id?: number | null;
+  database_token?: "set" | "missing";
   status?: string;
   note?: string;
 };
@@ -16,6 +18,8 @@ export default function SettingsPage() {
   const [mcpUrl, setMcpUrl] = useState("");
   const [tableUrl, setTableUrl] = useState("");
   const [status, setStatus] = useState<BaserowStatus | null>(null);
+  const [dbToken, setDbToken] = useState("");
+  const [tableId, setTableId] = useState("851262");
   const [msg, setMsg] = useState<string>("");
 
   async function refresh() {
@@ -30,7 +34,12 @@ export default function SettingsPage() {
     const res = await fetch(`${API_BASE}/integrations/baserow`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mcp_url: mcpUrl, table_url: tableUrl || null }),
+      body: JSON.stringify({
+        mcp_url: mcpUrl,
+        table_url: tableUrl || null,
+        database_token: dbToken || null,
+        leads_table_id: tableId ? Number(tableId) : null,
+      }),
     });
     if (!res.ok) {
       setMsg(`Save failed: ${res.status}`);
@@ -87,6 +96,31 @@ export default function SettingsPage() {
               onChange={(e) => setTableUrl(e.target.value)}
             />
           </label>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="grid gap-1">
+              <span className="text-xs text-zinc-400">Leads table ID</span>
+              <input
+                className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm text-zinc-100"
+                value={tableId}
+                onChange={(e) => setTableId(e.target.value)}
+              />
+            </label>
+
+            <label className="grid gap-1">
+              <span className="text-xs text-zinc-400">Database token (write)</span>
+              <input
+                type="password"
+                className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm text-zinc-100"
+                placeholder="Paste token…"
+                value={dbToken}
+                onChange={(e) => setDbToken(e.target.value)}
+              />
+              <span className="text-xs text-zinc-500">
+                Stored server-side. Never shown back.
+              </span>
+            </label>
+          </div>
 
           <div className="flex items-center gap-2">
             <button

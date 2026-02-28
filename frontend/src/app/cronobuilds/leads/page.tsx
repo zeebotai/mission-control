@@ -46,6 +46,36 @@ export default function Page() {
     }
   }
 
+  async function addToBaserow() {
+    if (!raw.trim()) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`${API_BASE}/cronobuilds/baserow/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ raw }),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Import failed: ${res.status} ${txt}`);
+      }
+      const json = (await res.json()) as { created: number; duplicates: any[] };
+      if (json.duplicates?.length) {
+        setErr(`Duplicates detected (${json.duplicates.length}). No rows written.`);
+      } else {
+        setErr("");
+      }
+      // Refresh parsed view so user sees what was acted on.
+      await parse();
+      alert(`Imported: ${json.created}`);
+    } catch (e: any) {
+      setErr(e?.message || "import failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div>
       <h1 className="text-xl font-semibold">Cronobuilds · Lead Inbox</h1>
@@ -60,13 +90,20 @@ export default function Page() {
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             className="rounded-md border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-200 hover:bg-emerald-900/40 disabled:opacity-60"
             disabled={busy || raw.trim().length === 0}
             onClick={() => void parse()}
           >
-            {busy ? "Parsing…" : "Process batch"}
+            {busy ? "Working…" : "Process batch"}
+          </button>
+          <button
+            className="rounded-md border border-sky-800 bg-sky-950/40 px-3 py-2 text-sm text-sky-200 hover:bg-sky-900/40 disabled:opacity-60"
+            disabled={busy || raw.trim().length === 0}
+            onClick={() => void addToBaserow()}
+          >
+            {busy ? "Working…" : "Add to Baserow"}
           </button>
           {err ? <div className="text-sm text-red-300">{err}</div> : null}
         </div>
