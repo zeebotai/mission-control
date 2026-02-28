@@ -116,7 +116,9 @@ async def import_to_baserow(req: ImportRequest, db: Session = Depends(get_sessio
             "Business Name": l.business_name,
             "Phone Number": l.phone_number or "",
             "Website": "none",
-            "Industry": l.industry or "",
+            # NOTE: "Industry" is often a single-select in Baserow; posting arbitrary strings
+            # causes 400s. We'll only send it once we implement option mapping.
+            # "Industry": l.industry or "",
             "Notes": l.notes,
         }
         try:
