@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+import httpx
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -110,18 +111,33 @@ async def import_to_baserow(req: ImportRequest, db: Session = Depends(get_sessio
 
     created = 0
     for l in leads:
-        # Use user_field_names=true so we can post readable keys.
+        # Be conservative with field types: avoid select fields unless we know option names match.
         row = {
             "Business Name": l.business_name,
             "Phone Number": l.phone_number or "",
-            "Contact Method": l.contact_method,
             "Website": "none",
-            "Status": "lead",
             "Industry": l.industry or "",
             "Notes": l.notes,
-            "Lead Source": "Google Maps",
         }
-        await client.create_row(table_id=table_id, data=row, user_field_names=True)
+        try:
+            await client.create_row(table_id=table_id, data=row, user_field_names=True)
+        except httpx.HTTPStatusError as e:
+            detail = {
+                "message": "baserow_create_failed",
+                "status_code": e.response.status_code if e.response is not None else None,
+                "response": (e.response.text if e.response is not None else str(e))[:2000],
+                "lead": {"business_name": l.business_name, "phone_number": l.phone_number},
+            }
+            raise HTTPException(status_code=502, detail=detail)
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "message": "baserow_create_failed",
+                    "error": str(e)[:2000],
+                    "lead": {"business_name": l.business_name, "phone_number": l.phone_number},
+                },
+            )
         created += 1
 
     log_event(
