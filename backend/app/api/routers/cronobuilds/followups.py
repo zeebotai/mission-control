@@ -38,6 +38,13 @@ def _get_any(row: dict[str, Any], keys: list[str]) -> Any:
     return None
 
 
+def _status_value(s: Any) -> str:
+    # Baserow single-select often comes back as {id,value,color}
+    if isinstance(s, dict) and "value" in s:
+        return str(s.get("value") or "")
+    return str(s or "")
+
+
 @router.get("/followups/due")
 async def due_followups(
     limit: int = 5,
@@ -104,7 +111,7 @@ async def due_followups(
             follow_up_str = str(follow_up)[:10]
 
             # Filter statuses that are clearly "done".
-            status_str = str(status or "").lower()
+            status_str = _status_value(status).lower()
             if status_str in {"closed", "won", "dead", "do not contact", "dnc"}:
                 continue
 

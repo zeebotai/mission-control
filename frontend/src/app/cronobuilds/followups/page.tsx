@@ -58,9 +58,19 @@ export default function Page() {
 
       <div className="mt-6 grid gap-3">
         {data ? (
-          <div className="text-sm text-zinc-400">
-            Today: <span className="text-zinc-200">{data.today}</span> · Due:
-            <span className="text-zinc-200"> {data.count}</span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm text-zinc-400">
+              Today: <span className="text-zinc-200">{data.today}</span> · Due:
+              <span className="text-zinc-200"> {data.count}</span>
+            </div>
+            <a
+              className="rounded-md border border-sky-800 bg-sky-950/40 px-3 py-2 text-sm text-sky-200 hover:bg-sky-900/40"
+              href="/api/cronobuilds/followups/priority?limit=10"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Priority list (text)
+            </a>
           </div>
         ) : (
           <div className="text-sm text-zinc-400">Loading…</div>
