@@ -83,7 +83,17 @@ async def due_followups(
         rows = data.get("results", [])
 
         for r in rows:
-            follow_up = _get_any(r, ["Follow Up Date", "Follow up date", "follow_up_date", "followup_date"])
+            follow_up = _get_any(
+                r,
+                [
+                    "Follow-Up Date",
+                    "Follow-up Date",
+                    "Follow Up Date",
+                    "Follow up date",
+                    "follow_up_date",
+                    "followup_date",
+                ],
+            )
             status = _get_any(r, ["Status", "status"])
             name = _get_any(r, ["Business Name", "Name", "business_name"])
             phone = _get_any(r, ["Phone Number", "Phone", "phone_number"])
