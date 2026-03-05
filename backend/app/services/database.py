@@ -32,6 +32,13 @@ def _sqlite_migrate() -> None:
         except Exception:
             pass
 
+        # docs: add category
+        try:
+            if not _sqlite_has_column(conn, "doc", "category"):
+                conn.exec_driver_sql("ALTER TABLE doc ADD COLUMN category VARCHAR DEFAULT 'general'")
+        except Exception:
+            pass
+
 
 def get_session():
     with Session(engine) as session:

@@ -11,6 +11,7 @@ type Doc = {
   content: string;
   project_slug: string;
   tags: string;
+  category: string;
 };
 
 export default function DocsPage() {
@@ -21,6 +22,7 @@ export default function DocsPage() {
   const [busy, setBusy] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState("general");
   const [newProject, setNewProject] = useState("");
   const [newTags, setNewTags] = useState("");
   const [newContent, setNewContent] = useState("");
@@ -57,10 +59,12 @@ export default function DocsPage() {
       const res = await postJSON<{ ok: boolean; doc: Doc }>("/docstore", {
         title: newTitle.trim(),
         content: newContent,
+        category: newCategory,
         project_slug: newProject.trim(),
         tags: newTags.trim(),
       });
       setNewTitle("");
+      setNewCategory("general");
       setNewProject("");
       setNewTags("");
       setNewContent("");
@@ -82,6 +86,7 @@ export default function DocsPage() {
         {
           title: selected.title,
           content: selected.content,
+          category: (selected as any).category,
           project_slug: selected.project_slug,
           tags: selected.tags,
         }
@@ -187,6 +192,15 @@ export default function DocsPage() {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
+              <select
+                className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              >
+                <option value="general">general</option>
+                <option value="stax">stax</option>
+                <option value="mission-control">mission-control</option>
+              </select>
               <input
                 className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
                 placeholder="Project slug (optional)"
@@ -246,7 +260,16 @@ export default function DocsPage() {
                 value={selected.title}
                 onChange={(e) => setSelected({ ...selected, title: e.target.value })}
               />
-              <div className="grid gap-2 md:grid-cols-2">
+              <div className="grid gap-2 md:grid-cols-3">
+                <select
+                  className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
+                  value={selected.category}
+                  onChange={(e) => setSelected({ ...selected, category: e.target.value })}
+                >
+                  <option value="general">general</option>
+                  <option value="stax">stax</option>
+                  <option value="mission-control">mission-control</option>
+                </select>
                 <input
                   className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
                   placeholder="project_slug"

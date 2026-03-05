@@ -87,7 +87,8 @@ class Doc(SQLModel, table=True):
     title: str = Field(index=True)
     content: str
 
-    # Optional organization
+    # Organization
+    category: str = Field(default="general", index=True)  # general|stax|mission-control|...
     project_slug: str = Field(default="", index=True)
     tags: str = Field(default="", index=True)  # comma-separated
 

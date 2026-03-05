@@ -18,6 +18,7 @@ router = APIRouter(prefix="/docstore", tags=["docs"])
 class DocCreate(BaseModel):
     title: str
     content: str
+    category: str | None = "general"
     project_slug: str | None = ""
     tags: str | None = ""
 
@@ -25,6 +26,7 @@ class DocCreate(BaseModel):
 class DocUpdate(BaseModel):
     title: str | None = None
     content: str | None = None
+    category: str | None = None
     project_slug: str | None = None
     tags: str | None = None
 
@@ -33,6 +35,7 @@ class DocUpdate(BaseModel):
 def list_docs(
     q: str | None = None,
     project: str | None = None,
+    category: str | None = None,
     limit: int = 100,
     db: Session = Depends(get_session),
 ) -> list[Doc]:
@@ -40,6 +43,9 @@ def list_docs(
 
     if project:
         stmt = stmt.where(Doc.project_slug == project)
+
+    if category:
+        stmt = stmt.where(Doc.category == category)
 
     if q:
         like = f"%{q}%"
@@ -67,6 +73,7 @@ def create_doc(payload: DocCreate, db: Session = Depends(get_session)) -> dict[s
     d = Doc(
         title=title,
         content=content,
+        category=(payload.category or "general").strip() or "general",
         project_slug=(payload.project_slug or "").strip(),
         tags=(payload.tags or "").strip(),
     )
@@ -79,7 +86,7 @@ def create_doc(payload: DocCreate, db: Session = Depends(get_session)) -> dict[s
         source="human",
         event_type="doc.create",
         human_summary=f"Created doc: {d.title}",
-        raw={"doc_id": d.id, "project_slug": d.project_slug, "tags": d.tags},
+        raw={"doc_id": d.id, "category": d.category, "project_slug": d.project_slug, "tags": d.tags},
     )
 
     return {"ok": True, "doc": d}
@@ -95,6 +102,8 @@ def update_doc(doc_id: int, payload: DocUpdate, db: Session = Depends(get_sessio
         d.title = payload.title
     if payload.content is not None:
         d.content = payload.content
+    if payload.category is not None:
+        d.category = payload.category
     if payload.project_slug is not None:
         d.project_slug = payload.project_slug
     if payload.tags is not None:
