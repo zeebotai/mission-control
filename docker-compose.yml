@@ -5,8 +5,11 @@ services:
       - "8020:8000"
     environment:
       - DATABASE_URL=sqlite:////data/mission_control.db
+      - CLAWDBOT_CRON_DIR=/clawdbot_cron
     volumes:
       - mc_data:/data
+      # Read Clawdbot cron jobs/runs directly from the host (read-only)
+      - ~/.clawdbot/cron:/clawdbot_cron:ro
 
   web:
     build: ./frontend

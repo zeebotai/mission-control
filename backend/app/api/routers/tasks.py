@@ -21,6 +21,7 @@ class TaskCreate(BaseModel):
     priority: int | None = 2
     owner: str | None = "human"
     assigned_to: str | None = ""
+    project_slug: str | None = ""
     source: str | None = "manual"
     source_ref: str | None = ""
 
@@ -63,6 +64,7 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_session)) -> dict
         priority=int(payload.priority or 2),
         owner=payload.owner or "human",
         assigned_to=payload.assigned_to or "",
+        project_slug=(payload.project_slug or "").strip(),
         source=payload.source or "manual",
         source_ref=payload.source_ref or "",
     )

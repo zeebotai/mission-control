@@ -8,5 +8,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./mission_control.db"
     poll_interval_seconds: int = 5
 
+    clawdbot_cron_dir: str = "/clawdbot_cron"
+
 
 settings = Settings()

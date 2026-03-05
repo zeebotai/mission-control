@@ -67,10 +67,24 @@ class CostEvent(SQLModel, table=True):
     estimated_cost: float = Field(default=0.0)
 
 
+class Project(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+    slug: str = Field(index=True, unique=True)
+    name: str
+    repo_url: str = Field(default="")
+    status: str = Field(default="active", index=True)  # active|paused|done
+    notes: str = Field(default="")
+
+
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
     updated_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+    project_slug: str = Field(default="", index=True)
 
     title: str
     description: str = Field(default="")
