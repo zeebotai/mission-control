@@ -15,11 +15,16 @@ export default function RootLayout({
       <body className="antialiased">
         <div className="min-h-screen bg-black text-zinc-100">
           <header className="sticky top-0 z-50 border-b border-zinc-900 bg-black/80 backdrop-blur">
-            <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-              <Link href="/" className="text-sm font-semibold tracking-tight hover:opacity-80">
-                Mission Control
-              </Link>
-              <nav className="flex items-center gap-2">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3">
+              <div className="min-w-0">
+                <Link href="/" className="text-sm font-semibold tracking-tight hover:opacity-80">
+                  Mission Control
+                </Link>
+                <div className="mt-1 hidden max-w-[56ch] truncate text-xs text-zinc-400 md:block">
+                  Build things that create freedom — for my family, my future, and the people I serve — while living with discipline, curiosity, and faith in Christ.
+                </div>
+              </div>
+              <nav className="flex shrink-0 items-center gap-2">
                 <Link
                   href="/"
                   className="rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-900/40"
