@@ -79,6 +79,19 @@ class Project(SQLModel, table=True):
     notes: str = Field(default="")
 
 
+class Doc(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+    title: str = Field(index=True)
+    content: str
+
+    # Optional organization
+    project_slug: str = Field(default="", index=True)
+    tags: str = Field(default="", index=True)  # comma-separated
+
+
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)

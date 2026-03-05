@@ -44,6 +44,12 @@ export default function RootLayout({
                 >
                   Projects
                 </Link>
+                <Link
+                  href="/docs"
+                  className="rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-900/40"
+                >
+                  Docs
+                </Link>
               </nav>
             </div>
           </header>
