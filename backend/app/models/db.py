@@ -78,6 +78,9 @@ class Project(SQLModel, table=True):
     status: str = Field(default="active", index=True)  # active|paused|done
     notes: str = Field(default="")
 
+    # Required on create (API-enforced)
+    mission_alignment: str = Field(default="")
+
 
 class Doc(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -86,6 +89,9 @@ class Doc(SQLModel, table=True):
 
     title: str = Field(index=True)
     content: str
+
+    # Required on create (API-enforced)
+    mission_alignment: str = Field(default="")
 
     # Organization
     category: str = Field(default="general", index=True)  # general|stax|mission-control|...
@@ -102,6 +108,9 @@ class Task(SQLModel, table=True):
 
     title: str
     description: str = Field(default="")
+
+    # Required on create (API-enforced)
+    mission_alignment: str = Field(default="")
 
     status: str = Field(default="todo", index=True)  # todo|doing|blocked|done
     priority: int = Field(default=2, index=True)  # 1 high, 2 normal, 3 low

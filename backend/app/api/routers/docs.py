@@ -18,6 +18,7 @@ router = APIRouter(prefix="/docstore", tags=["docs"])
 class DocCreate(BaseModel):
     title: str
     content: str
+    mission_alignment: str
     category: str | None = "general"
     project_slug: str | None = ""
     tags: str | None = ""
@@ -26,6 +27,7 @@ class DocCreate(BaseModel):
 class DocUpdate(BaseModel):
     title: str | None = None
     content: str | None = None
+    mission_alignment: str | None = None
     category: str | None = None
     project_slug: str | None = None
     tags: str | None = None
@@ -70,9 +72,14 @@ def create_doc(payload: DocCreate, db: Session = Depends(get_session)) -> dict[s
     if not title:
         raise HTTPException(status_code=400, detail="title_required")
 
+    alignment = (payload.mission_alignment or "").strip()
+    if not alignment:
+        raise HTTPException(status_code=400, detail="mission_alignment_required")
+
     d = Doc(
         title=title,
         content=content,
+        mission_alignment=alignment,
         category=(payload.category or "general").strip() or "general",
         project_slug=(payload.project_slug or "").strip(),
         tags=(payload.tags or "").strip(),
@@ -102,6 +109,8 @@ def update_doc(doc_id: int, payload: DocUpdate, db: Session = Depends(get_sessio
         d.title = payload.title
     if payload.content is not None:
         d.content = payload.content
+    if payload.mission_alignment is not None:
+        d.mission_alignment = payload.mission_alignment
     if payload.category is not None:
         d.category = payload.category
     if payload.project_slug is not None:

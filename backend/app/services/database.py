@@ -39,6 +39,14 @@ def _sqlite_migrate() -> None:
         except Exception:
             pass
 
+        # mission alignment fields
+        for table in ("task", "doc", "project"):
+            try:
+                if not _sqlite_has_column(conn, table, "mission_alignment"):
+                    conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN mission_alignment VARCHAR DEFAULT ''")
+            except Exception:
+                pass
+
 
 def get_session():
     with Session(engine) as session:

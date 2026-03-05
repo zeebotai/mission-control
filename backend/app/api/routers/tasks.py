@@ -16,6 +16,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 class TaskCreate(BaseModel):
     title: str
+    mission_alignment: str
     description: str | None = ""
     status: str | None = "todo"
     priority: int | None = 2
@@ -28,6 +29,7 @@ class TaskCreate(BaseModel):
 
 class TaskUpdate(BaseModel):
     title: str | None = None
+    mission_alignment: str | None = None
     description: str | None = None
     status: str | None = None
     priority: int | None = None
@@ -57,9 +59,14 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_session)) -> dict
     if not title:
         raise HTTPException(status_code=400, detail="title_required")
 
+    alignment = (payload.mission_alignment or "").strip()
+    if not alignment:
+        raise HTTPException(status_code=400, detail="mission_alignment_required")
+
     t = Task(
         title=title,
         description=(payload.description or "").strip(),
+        mission_alignment=alignment,
         status=payload.status or "todo",
         priority=int(payload.priority or 2),
         owner=payload.owner or "human",
@@ -93,6 +100,8 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_ses
 
     if payload.title is not None:
         t.title = payload.title.strip()
+    if payload.mission_alignment is not None:
+        t.mission_alignment = payload.mission_alignment
     if payload.description is not None:
         t.description = payload.description
     if payload.status is not None:

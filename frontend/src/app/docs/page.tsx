@@ -12,6 +12,7 @@ type Doc = {
   project_slug: string;
   tags: string;
   category: string;
+  mission_alignment: string;
 };
 
 export default function DocsPage() {
@@ -26,6 +27,7 @@ export default function DocsPage() {
   const [newCategory, setNewCategory] = useState("general");
   const [newProject, setNewProject] = useState("");
   const [newTags, setNewTags] = useState("");
+  const [newMission, setNewMission] = useState("");
   const [newContent, setNewContent] = useState("");
 
   async function refresh() {
@@ -61,6 +63,7 @@ export default function DocsPage() {
       const res = await postJSON<{ ok: boolean; doc: Doc }>("/docstore", {
         title: newTitle.trim(),
         content: newContent,
+        mission_alignment: newMission.trim(),
         category: newCategory,
         project_slug: newProject.trim(),
         tags: newTags.trim(),
@@ -69,6 +72,7 @@ export default function DocsPage() {
       setNewCategory("general");
       setNewProject("");
       setNewTags("");
+      setNewMission("");
       setNewContent("");
       setSelected(res.doc);
       await refresh();
@@ -88,7 +92,8 @@ export default function DocsPage() {
         {
           title: selected.title,
           content: selected.content,
-          category: (selected as any).category,
+          mission_alignment: selected.mission_alignment,
+          category: selected.category,
           project_slug: selected.project_slug,
           tags: selected.tags,
         }
@@ -240,6 +245,12 @@ export default function DocsPage() {
                 onChange={(e) => setNewTags(e.target.value)}
               />
               <textarea
+                className="min-h-[80px] rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
+                placeholder="How does this doc move us toward the mission? (required)"
+                value={newMission}
+                onChange={(e) => setNewMission(e.target.value)}
+              />
+              <textarea
                 className="min-h-[120px] rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
                 placeholder="Content"
                 value={newContent}
@@ -248,7 +259,7 @@ export default function DocsPage() {
               <button
                 className="rounded-md border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-200 hover:bg-emerald-900/40 disabled:opacity-60"
                 onClick={() => void create()}
-                disabled={busy || !newTitle.trim()}
+                disabled={busy || !newTitle.trim() || !newMission.trim()}
               >
                 Create
               </button>
@@ -309,6 +320,12 @@ export default function DocsPage() {
                   onChange={(e) => setSelected({ ...selected, tags: e.target.value })}
                 />
               </div>
+              <textarea
+                className="min-h-[80px] rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
+                placeholder="Mission alignment (required for new docs)"
+                value={selected.mission_alignment}
+                onChange={(e) => setSelected({ ...selected, mission_alignment: e.target.value })}
+              />
               <textarea
                 className="min-h-[420px] rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 font-mono text-xs"
                 value={selected.content}

@@ -34,6 +34,7 @@ export default function TasksPage() {
   const [busy, setBusy] = useState(false);
 
   const [title, setTitle] = useState("");
+  const [mission, setMission] = useState("");
   const [assignedTo, setAssignedTo] = useState("openclaw");
   const [priority, setPriority] = useState("2");
 
@@ -54,6 +55,7 @@ export default function TasksPage() {
     try {
       await postJSON<TaskCreateResp>("/tasks", {
         title: title.trim(),
+        mission_alignment: mission.trim(),
         status: "todo",
         priority: Number(priority || 2),
         owner: assignedTo.trim() ? "openclaw" : "human",
@@ -61,6 +63,7 @@ export default function TasksPage() {
         source: "manual",
       });
       setTitle("");
+      setMission("");
       await refresh();
     } catch (e: any) {
       setErr(e?.message || "create failed");
@@ -139,6 +142,16 @@ export default function TasksPage() {
             />
           </label>
 
+          <label className="grid gap-1 md:col-span-3">
+            <span className="text-xs text-zinc-400">How does this move us toward the mission?</span>
+            <input
+              className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm text-zinc-100"
+              placeholder="Short reason (required)…"
+              value={mission}
+              onChange={(e) => setMission(e.target.value)}
+            />
+          </label>
+
           <div className="grid gap-3 md:grid-cols-2">
             <label className="grid gap-1">
               <span className="text-xs text-zinc-400">Assigned to</span>
@@ -168,7 +181,7 @@ export default function TasksPage() {
           <button
             className="rounded-md border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-200 hover:bg-emerald-900/40 disabled:opacity-60"
             onClick={() => void create()}
-            disabled={busy || !title.trim()}
+            disabled={busy || !title.trim() || !mission.trim()}
           >
             Add task
           </button>

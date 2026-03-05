@@ -17,6 +17,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 class ProjectCreate(BaseModel):
     slug: str
     name: str
+    mission_alignment: str
     repo_url: str | None = ""
     status: str | None = "active"
     notes: str | None = ""
@@ -24,6 +25,7 @@ class ProjectCreate(BaseModel):
 
 class ProjectUpdate(BaseModel):
     name: str | None = None
+    mission_alignment: str | None = None
     repo_url: str | None = None
     status: str | None = None
     notes: str | None = None
@@ -44,9 +46,14 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_session)) -
     if existing:
         raise HTTPException(status_code=409, detail="project_exists")
 
+    alignment = (payload.mission_alignment or "").strip()
+    if not alignment:
+        raise HTTPException(status_code=400, detail="mission_alignment_required")
+
     p = Project(
         slug=slug,
         name=payload.name.strip() or slug,
+        mission_alignment=alignment,
         repo_url=(payload.repo_url or "").strip(),
         status=payload.status or "active",
         notes=(payload.notes or "").strip(),
@@ -68,6 +75,8 @@ def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depend
 
     if payload.name is not None:
         p.name = payload.name
+    if payload.mission_alignment is not None:
+        p.mission_alignment = payload.mission_alignment
     if payload.repo_url is not None:
         p.repo_url = payload.repo_url
     if payload.status is not None:

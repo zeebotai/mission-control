@@ -29,6 +29,7 @@ export default function ProjectsPage() {
   const [slug, setSlug] = useState("stax");
   const [name, setName] = useState("Stax");
   const [repoUrl, setRepoUrl] = useState("");
+  const [mission, setMission] = useState("");
 
   async function refresh() {
     setErr("");
@@ -50,6 +51,7 @@ export default function ProjectsPage() {
       await postJSON("/projects", {
         slug: slug.trim(),
         name: name.trim() || slug.trim(),
+        mission_alignment: mission.trim(),
         repo_url: repoUrl.trim(),
       });
       await refresh();
@@ -116,11 +118,19 @@ export default function ProjectsPage() {
             value={repoUrl}
             onChange={(e) => setRepoUrl(e.target.value)}
           />
+
+          <textarea
+            className="md:col-span-3 min-h-[80px] rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
+            placeholder="How does this project move us toward the mission? (required)"
+            value={mission}
+            onChange={(e) => setMission(e.target.value)}
+          />
         </div>
         <div className="mt-3">
           <button
-            className="rounded-md border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-200 hover:bg-emerald-900/40"
+            className="rounded-md border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-200 hover:bg-emerald-900/40 disabled:opacity-60"
             onClick={() => void create()}
+            disabled={!slug.trim() || !mission.trim()}
           >
             Create
           </button>
