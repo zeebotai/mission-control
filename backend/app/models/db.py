@@ -65,3 +65,21 @@ class CostEvent(SQLModel, table=True):
     model: str = Field(default="")
     tokens: int = Field(default=0)
     estimated_cost: float = Field(default=0.0)
+
+
+class Task(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+    title: str
+    description: str = Field(default="")
+
+    status: str = Field(default="todo", index=True)  # todo|doing|blocked|done
+    priority: int = Field(default=2, index=True)  # 1 high, 2 normal, 3 low
+
+    owner: str = Field(default="human", index=True)  # human|openclaw|system
+    assigned_to: str = Field(default="", index=True)  # agent name or handle
+
+    source: str = Field(default="", index=True)  # e.g. activity, job, manual
+    source_ref: str = Field(default="", index=True)  # id/url/etc
