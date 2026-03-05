@@ -10,6 +10,9 @@ services:
       - mc_data:/data
       # Read Clawdbot cron jobs/runs directly from the host (read-only)
       - ~/.clawdbot/cron:/clawdbot_cron:ro
+      # Memory files (read-only)
+      - ../memory:/mc_memory:ro
+      - ../MEMORY.md:/mc_MEMORY.md:ro
 
   web:
     build: ./frontend

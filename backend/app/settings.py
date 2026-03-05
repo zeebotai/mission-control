@@ -10,5 +10,8 @@ class Settings(BaseSettings):
 
     clawdbot_cron_dir: str = "/clawdbot_cron"
 
+    memory_daily_dir: str = "/mc_memory"
+    memory_longterm_path: str = "/mc_MEMORY.md"
+
 
 settings = Settings()
