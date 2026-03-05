@@ -16,6 +16,7 @@ type Doc = {
 
 export default function DocsPage() {
   const [q, setQ] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [docs, setDocs] = useState<Doc[]>([]);
   const [selected, setSelected] = useState<Doc | null>(null);
   const [err, setErr] = useState("");
@@ -30,9 +31,10 @@ export default function DocsPage() {
   async function refresh() {
     setErr("");
     try {
-      const path = q.trim()
-        ? `/docstore?q=${encodeURIComponent(q.trim())}`
-        : "/docstore";
+      const params = new URLSearchParams();
+      if (q.trim()) params.set("q", q.trim());
+      if (categoryFilter !== "all") params.set("category", categoryFilter);
+      const path = params.toString() ? `/docstore?${params.toString()}` : "/docstore";
       const list = await getJSON<Doc[]>(path);
       setDocs(list);
       if (!selected && list.length) setSelected(list[0]);
@@ -119,7 +121,14 @@ export default function DocsPage() {
   useEffect(() => {
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [categoryFilter]);
+
+  const counts = {
+    all: docs.length,
+    general: docs.filter((d) => d.category === "general").length,
+    stax: docs.filter((d) => d.category === "stax").length,
+    "mission-control": docs.filter((d) => d.category === "mission-control").length,
+  };
 
   return (
     <div>
@@ -129,6 +138,13 @@ export default function DocsPage() {
           <p className="mt-1 text-sm text-zinc-400">
             Any doc we create goes here. Searchable by title + content.
           </p>
+          <div className="mt-2 flex flex-wrap gap-2 text-xs text-zinc-400">
+            <span>Counts:</span>
+            <span>all={counts.all}</span>
+            <span>general={counts.general}</span>
+            <span>stax={counts.stax}</span>
+            <span>mission-control={counts["mission-control"]}</span>
+          </div>
         </div>
         <button
           className="rounded-md border border-zinc-700 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-800"
@@ -139,6 +155,16 @@ export default function DocsPage() {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
+        <select
+          className="rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm text-zinc-100"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="all">all</option>
+          <option value="general">general</option>
+          <option value="stax">stax</option>
+          <option value="mission-control">mission-control</option>
+        </select>
         <input
           className="w-full max-w-xl rounded-md border border-zinc-800 bg-zinc-950/50 px-3 py-2 text-sm"
           placeholder="Search docs…"
